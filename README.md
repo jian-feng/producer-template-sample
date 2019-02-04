@@ -16,38 +16,44 @@
 camelContext内で`<template>` (ProducerTemplateのこと)を初期化します。  
 また、MyProcessorはこのtemplate、とendpointUriで初期化します。
 
-	<bean id="myprocessor" class="org.mycompany.MyProcessor">
-		<property name="producer" ref="myTemplate" />
-		<property name="endpointUri" value="http://inet-ip.info/ip"/>
-	</bean>
-	<camelContext id="camel" ...">
-		<template id="myTemplate" />
-		...
-	</camelContext>
+```xml
+<bean id="myprocessor" class="org.mycompany.MyProcessor">
+	<property name="producer" ref="myTemplate" />
+	<property name="endpointUri" value="http://inet-ip.info/ip"/>
+</bean>
+<camelContext id="camel" ...">
+	<template id="myTemplate" />
+	...
+</camelContext>
+```
 
 ### 2. MyProcessor.java
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
-		
-		// camel-contextにて初期化されたProducerTempalteを使ってリクエストレスポンスを実行します。	
-		String respBody = producer.requestBody(endpointUri,"test message from myprocessor", String.class);
-		LOG.info("respBody={}", respBody);
-		
-		// ProducerTemplateから得られたレスポンスを現在処理中のExchangeにセットします。
-		exchange.getIn().setBody(respBody);
-	}
+```java
+@Override
+public void process(Exchange exchange) throws Exception {
+	
+	// camel-contextにて初期化されたProducerTempalteを使ってリクエストレスポンスを実行します。	
+	String respBody = producer.requestBody(endpointUri,"test message from myprocessor", String.class);
+	LOG.info("respBody={}", respBody);
+	
+	// ProducerTemplateから得られたレスポンスを現在処理中のExchangeにセットします。
+	exchange.getIn().setBody(respBody);
+}
+```
 
 ### 3. camel-conotext.xml
 
 camelContext内のCamel Routeは以下に定義します。
 
-	<route>
-		...
-		<log id="log1" message="body before myprocessor >>> ${body}" />
-		<process ref="myprocessor" />
-		<log id="log2" message="body after myprocessor >>> ${body}" />
-	</route>
+```xml
+<route>
+	...
+	<log id="log1" message="body before myprocessor >>> ${body}" />
+	<process ref="myprocessor" />
+	<log id="log2" message="body after myprocessor >>> ${body}" />
+</route>
+```
 
 ## 実行方法
 
